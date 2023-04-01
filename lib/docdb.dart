@@ -55,7 +55,6 @@ class DocDB {
       final kvRows =
           await database.query(table, where: 'doc_id = ?', whereArgs: [id]);
       for (var row in kvRows) {
-        print(row);
         dynamic value;
         switch (row['data_type']) {
           case 'integer':
