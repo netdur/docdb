@@ -35,7 +35,6 @@ void main() {
       final retrievedDoc = await db.get(doc.id);
       expect(retrievedDoc['title'], equals('Test Document'));
       expect(retrievedDoc['content'], equals('This is a test document'));
-      print("insert done");
     });
 
     test('Updating documents works', () async {

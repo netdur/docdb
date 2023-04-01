@@ -1,2 +1,3 @@
-## [0.0.1] - first release
-* Check read me
+## 0.0.1
+
+* TODO: Describe initial release.
