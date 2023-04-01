@@ -7,8 +7,6 @@ import 'doc.dart';
 class DocDB {
   Database? _database;
 
-  // DocDB();
-
   Future<List<Doc>> filter(String key, dynamic value,
       {int limit = 20, int offset = 0}) async {
     var docs = <Doc>[];
@@ -57,9 +55,10 @@ class DocDB {
       final kvRows =
           await database.query(table, where: 'doc_id = ?', whereArgs: [id]);
       for (var row in kvRows) {
+        print(row);
         dynamic value;
         switch (row['data_type']) {
-          case 'int':
+          case 'integer':
             value = row['value'];
             break;
           case 'real':
@@ -70,6 +69,13 @@ class DocDB {
             break;
           case 'blob':
             value = row['value'];
+            break;
+          case 'bool':
+            value = row['value'] == 1 ? true : false;
+            break;
+          case 'datetime':
+            value = DateTime.fromMillisecondsSinceEpoch(
+                int.parse("${row['value']}"));
             break;
         }
         if (row.containsKey('key')) {
