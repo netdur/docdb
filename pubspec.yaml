@@ -1,15 +1,15 @@
 name: docdb
 description: A SQLite-based document store for Flutter.
 version: 0.0.1
-publish_to: 'docdb' 
+publish_to: 'https://pub.dev/packages/docdb'
 homepage: https://github.com/netdur/docdb
 repository: https://github.com/netdur/docdb
 dependencies:
   flutter:
     sdk: flutter
-  sqflite:
-  sqflite_common_ffi:
-  path:
+  sqflite: ^2.2.6
+  sqflite_common_ffi: ^2.2.2
+  path: ^1.8.2
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
