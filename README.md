@@ -74,5 +74,17 @@ print(docs.length); // Prints the number of documents with the specified title
 ```
 The filter method returns a list of Doc objects that match the specified criteria.
 
+## Querying documents
+You can query documents with multiple filters and date constraints using the query method:
+
+```dart
+List<Doc> docs = await db.query(
+  {'_collection': 'xyz', 'status': 'active'},
+  dateField: 'created',
+  olderThan: DateTime.now().subtract(const Duration(days: 3)),
+);
+```
+The query method returns a list of Doc objects that match the specified criteria and date constraints.
+
 ## License
 DocDB is released under the MIT License. See LICENSE for details.

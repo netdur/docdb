@@ -7,8 +7,64 @@ import 'doc.dart';
 class DocDB {
   Database? _database;
 
+  Future<List<Doc>> query(Map<String, dynamic> filters,
+      {String? dateField,
+      DateTime? olderThan,
+      DateTime? newerThan,
+      DateTime? start,
+      DateTime? end,
+      int limit = 20,
+      int offset = 0,
+      String orderBy = 'ASC'}) async {
+    var docs = <Doc>[];
+
+    // Prepare the where clause and where arguments
+    StringBuffer whereBuffer = StringBuffer();
+    List<dynamic> whereArgs = [];
+
+    for (String key in filters.keys) {
+      if (whereBuffer.isNotEmpty) {
+        whereBuffer.write(' AND ');
+      }
+      whereBuffer.write(
+          'id IN (SELECT doc_id FROM kv_text WHERE key = ? AND value = ?)');
+      whereArgs.add(key);
+      whereArgs.add(filters[key]);
+    }
+
+    String where = whereBuffer.toString();
+
+    List<Map<String, dynamic>> results = await database.query('doc',
+        distinct: true,
+        where: where.isNotEmpty ? where : null,
+        whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
+        limit: limit,
+        offset: offset,
+        orderBy: 'id $orderBy');
+
+    for (var row in results) {
+      Doc doc = await get(row['id']);
+      if (dateField != null) {
+        DateTime dateValue = doc[dateField];
+        if (olderThan != null && dateValue.isAfter(olderThan)) {
+          continue;
+        }
+        if (newerThan != null && dateValue.isBefore(newerThan)) {
+          continue;
+        }
+        if (start != null &&
+            end != null &&
+            (dateValue.isBefore(start) || dateValue.isAfter(end))) {
+          continue;
+        }
+      }
+      docs.add(doc);
+    }
+    return docs;
+  }
+
   Future<List<Doc>> filter(String key, dynamic value,
-      {int limit = 20, int offset = 0}) async {
+      {int limit = 20, int offset = 0, String orderBy = 'ASC'}) async {
     var docs = <Doc>[];
     String tableName;
     if (value is int) {
@@ -26,7 +82,8 @@ class DocDB {
         where: 'key = ? AND value = ?',
         whereArgs: [key, value],
         limit: limit,
-        offset: offset);
+        offset: offset,
+        orderBy: 'doc_id $orderBy');
 
     for (var row in results) {
       docs.add(await get(row['doc_id']));
@@ -34,9 +91,10 @@ class DocDB {
     return docs;
   }
 
-  Future<List<Doc>> getAll({int limit = 20, int offset = 0}) async {
-    List<Map<String, dynamic>> maps =
-        await database.query('doc', limit: limit, offset: offset);
+  Future<List<Doc>> getAll(
+      {int limit = 20, int offset = 0, String orderBy = 'ASC'}) async {
+    List<Map<String, dynamic>> maps = await database.query('doc',
+        orderBy: 'id $orderBy', limit: limit, offset: offset);
     List<Doc> docs = [];
     for (Map<String, dynamic> map in maps) {
       docs.add(await get(map['id']));

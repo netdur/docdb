@@ -1,6 +1,6 @@
 name: docdb
-description: A SQLite-based document store for Flutter.
-version: 0.0.2
+description: A lightweight, SQLite-based document store for Flutter. This package simplifies data storage and retrieval, allowing users to manage documents with key-value pairs and query data using filters, date ranges, and ordering. Ideal for small to medium-sized applications.
+version: 0.0.3
 homepage: https://github.com/netdur/docdb
 repository: https://github.com/netdur/docdb
 
