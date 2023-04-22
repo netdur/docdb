@@ -58,6 +58,22 @@ void main() {
       expect(updatedDoc['title'], equals('Updated Test Document'));
     });
 
+    test('Update documents with new fields', () async {
+      // Insert a test document
+      final doc = Doc();
+      doc['title'] = 'Test Document';
+      await db.insert(doc);
+
+      // Update the document title
+      doc['title'] = 'Updated Test Document';
+      doc['new_value'] = true;
+      await db.update(doc);
+
+      // Retrieve the updated document
+      final updatedDoc = await db.get(doc.id);
+      expect(updatedDoc['new_value'], equals(true));
+    });
+
     test('Filter documents by single field', () async {
       // Insert two test documents with different statuses
       final doc1 = Doc();

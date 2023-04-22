@@ -196,6 +196,9 @@ class DocDB {
     await database.update(
         'doc', {'updated_at': DateTime.now().millisecondsSinceEpoch},
         where: 'id = ?', whereArgs: [doc.id]);
+
+    // Doc existingDoc = await get(doc.id);
+
     for (var key in doc.fields.keys) {
       var value = doc.fields[key];
       String type;
@@ -223,9 +226,39 @@ class DocDB {
       } else {
         continue;
       }
-      await database.update('kv_$type',
-          {'doc_id': doc.id, 'key': key, 'value': value, 'data_type': dataType},
-          where: 'doc_id = ? and key = ?', whereArgs: [doc.id, key]);
+
+      await database.execute('''
+      INSERT OR REPLACE INTO kv_$type (id, doc_id, key, value, data_type)
+      VALUES (
+        (SELECT id FROM kv_$type WHERE doc_id = ? AND key = ?),
+        ?,
+        ?,
+        ?,
+        ?
+      )
+    ''', [doc.id, key, doc.id, key, value, dataType]);
+
+      /*
+      if (existingDoc.fields.containsKey(key)) {
+        await database.update(
+            'kv_$type',
+            {
+              'doc_id': doc.id,
+              'key': key,
+              'value': value,
+              'data_type': dataType
+            },
+            where: 'doc_id = ? and key = ?',
+            whereArgs: [doc.id, key]);
+      } else {
+        await database.insert('kv_$type', {
+          'doc_id': doc.id,
+          'key': key,
+          'value': value,
+          'data_type': dataType,
+        });
+      }
+      */
     }
   }
 
